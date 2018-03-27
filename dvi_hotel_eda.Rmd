@@ -1,0 +1,65 @@
+---
+title: "Data Visualization Porject"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+
+data <- read_csv("output.csv")
+data$x <- NULL
+```
+
+```{r}
+subset(data, year == "1996")
+```
+
+
+```{r}
+
+data$year <- factor(data$year)
+data$emirate <- factor(data$emirate)
+data$class <- factor(data$class)
+data$nationality <- factor(data$nationality)
+data$guests <- as.numeric(data$guests)
+data$nights <- as.numeric(data$guests)
+
+summary(data$nights)
+data.io <- data %>%
+  summarise(total_g = sum(guests))
+
+data.io
+subset(data, year == 1996)
+```
+
+```{r}
+ggplot(data, aes(year, guests, fill=emirate)) +
+  geom_bar(stat="identity") +
+  facet_wrap(~nationality)
+```
+
+```{r}
+ggplot(data, aes(year, nights, fill=class)) +
+  geom_bar(stat="identity") +
+  facet_wrap(~nationality)
+```
+
+```{r}
+ggplot(subset(data, emirate=="abu dhabi"), aes(year, nights, fill=class)) +
+  geom_bar(stat="identity") +
+  facet_wrap(~nationality)
+```
+
+```{r}
+ggplot(subset(data, emirate=="abu dhabi" & 
+                nationality == "U. A. E"), aes(year, nights, fill=class)) +
+  geom_bar(stat="identity") +
+  facet_wrap(~nationality)
+```
+
+```{r}
+ggplot(subset(data, emirate=="dubai" & 
+                nationality == "Britan"), aes(year, nights, fill=class)) +
+  geom_bar(stat="identity") +
+  facet_wrap(~nationality)
+```
