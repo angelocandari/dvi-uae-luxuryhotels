@@ -17,7 +17,6 @@
         .append("g")
           .attr("class", "chart");
 
-
       function agg_year(leaves) {
         var total = d3.sum(leaves, function(d) {
           return d["guests"];
@@ -35,30 +34,43 @@
         .rollup(agg_year)
         .entries(data);
 
+      //////////
+
       var time_extent = d3.extent(nested, function(d) {
         return new Date(d.key);
-      });
-
-      var count_extent = d3.extent(nested, function(d) {
-        return d.values["guests"];
       });
 
       var time_scale = d3.time.scale()
         .range([margin, width])
         .domain(time_extent);
 
+      var time_axis = d3.svg.axis()
+        .scale(time_scale)
+        .ticks(d3.time.years, 1)
+        .tickFormat(d3.time.format("%Y"));
+
+      ////////
+
+      var count_extent = d3.extent(nested, function(d) {
+        return d.values["guests"];
+      });
+
       var count_scale = d3.scale.linear()
         .range([height, margin])
         .domain(count_extent);
 
-      var time_axis = d3.svg.axis()
-        .scale(time_scale)
-        .ticks(d3.time.years, 3)
-        .tickFormat(d3.time.format("%Y"));
-
       var count_axis = d3.svg.axis()
         .scale(count_scale)
         .orient("left");
+
+      var lineFunction = d3.svg.line()
+        .x(function(d) {
+          return time_scale(new Date(d.key));
+        })
+        .y(function(d) {
+          return count_scale(d.values["guests"]);
+        })
+        .interpolate("linear");
 
       d3.select("svg")
         .append("g")
@@ -81,10 +93,19 @@
           return time_scale(new Date(d.key));
         })
         .attr("cy", function(d) {
-          return count_scale(d.values["guests"])
+          return count_scale(d.values["guests"]);
         })
-        .attr("r", 5)
+        .attr("r", 4)
         .attr("fill", "lightblue");
+
+      d3.select("svg")
+        .append("path")
+        .attr("fill", "none")
+        .attr("stroke", "steelblue")
+        .attr("stroke-linejoin", "round")
+        .attr("stroke-linecap", "round")
+        .attr("stroke-width", 1.5)
+        .attr("d", lineFunction(nested));
 
     };
   </script>
