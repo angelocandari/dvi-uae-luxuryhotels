@@ -15,53 +15,37 @@ summary(data)
 ```{r}
 list(unique(data$emirate))
 ```
+```{r}
+head(data, 50)
+```
 
 
 ```{r}
-# data$year <- factor(data$year)
 data$emirate <- factor(data$emirate)
 data$class <- factor(data$class)
 data$nationality <- factor(data$nationality)
-# data$guests <- as.integer(data$guests)
-# data$nights <- as.numeric(data$nights)
 ```
 
-```{r}
-data.io <- data %>%
-  filter(year != 1885) %>%
-  group_by(year) %>%
-  summarise(total_g = sum(guests),
-            total_n = sum(nights))
-  #mutate(ratio = nights/guests)
-
-data.io
-```
 
 ```{r}
-data.all <- data %>%
-  filter(year != 1885)
-
-data.all
-```
-```{r}
-ggplot(data.all, aes(year, guests)) +
+ggplot(data, aes(year, guests)) +
   geom_bar(stat="identity")
 ```
 
 
 ```{r}
-ggplot(data.all, aes(year, guests, fill=emirate)) +
+ggplot(data, aes(year, guests, fill=emirate)) +
   geom_bar(stat="identity")
 ```
 
 ```{r}
-ggplot(data.all, aes(year, guests, fill=emirate)) +
+ggplot(data, aes(year, guests, fill=emirate)) +
   geom_bar(stat="identity") +
   facet_wrap(~nationality)
 ```
 
 ```{r}
-ggplot(subset(data.all, emirate %in% c("Umm Al-Qiwain",
+ggplot(subset(data, emirate %in% c("Umm Al-Qiwain",
                                        "Ajman and Umm Al-Qiwain",
                                        "sharjah and ajman")), 
        aes(year, guests, fill=emirate)) +
@@ -70,25 +54,25 @@ ggplot(subset(data.all, emirate %in% c("Umm Al-Qiwain",
 
 
 ```{r}
-ggplot(data.all, aes(year, guests, fill=emirate)) +
+ggplot(data, aes(year, guests, fill=emirate)) +
   geom_bar(stat="identity") +
   facet_wrap(~nationality)
 ```
 
 ```{r}
-ggplot(subset(data.all, emirate=="abu dhabi"), aes(year, guests, fill=class)) +
+ggplot(subset(data, emirate=="abu dhabi"), aes(year, guests, fill=class)) +
   geom_bar(stat="identity") +
   facet_wrap(~nationality)
 ```
 ```{r}
-ggplot(subset(data.all, emirate=="dubai" & 
+ggplot(subset(data, emirate=="dubai" & 
                 nationality == "Britan"), aes(year, guests, fill=class)) +
   geom_bar(stat="identity") +
   facet_wrap(~nationality)
 ```
 
 ```{r}
-ggplot(subset(data.all, emirate=="dubai" & 
+ggplot(subset(data, emirate=="dubai" & 
                 nationality == "Britan"), aes(year, nights, fill=class)) +
   geom_bar(stat="identity") +
   facet_wrap(~nationality)
@@ -96,14 +80,14 @@ ggplot(subset(data.all, emirate=="dubai" &
 
 
 ```{r}
-ggplot(subset(data.all, emirate=="abu dhabi" & 
+ggplot(subset(data, emirate=="abu dhabi" & 
                 nationality == "U. A. E"), aes(year, guests, fill=class)) +
   geom_bar(stat="identity") +
   facet_wrap(~nationality)
 ```
 
 ```{r}
-ggplot(subset(data.all, emirate == "dubai" ), aes(year, guests, fill=class)) +
+ggplot(subset(data, emirate == "dubai" ), aes(year, guests, fill=class)) +
   geom_bar(stat="identity") +
   facet_wrap(~nationality)
 ```
@@ -111,14 +95,7 @@ ggplot(subset(data.all, emirate == "dubai" ), aes(year, guests, fill=class)) +
 
 
 ```{r}
-
-data.em <- data %>%
-  filter(year != 1885) %>%
-  group_by(year, nationality) %>%
-  summarise(total_g = sum(guests),
-            total_n = sum(nights))
-  
-ggplot(subset(data.all, nationality %in% c("Britan", "U. A. E", "Russia")),
+ggplot(subset(data, nationality %in% c("Britan", "U. A. E", "Russia")),
        aes(year, guests, color=nationality)) +
   stat_summary(fun.y = mean, geom = "line") +
   stat_summary(fun.y = mean, geom = "point")
