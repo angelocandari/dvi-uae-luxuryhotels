@@ -15,7 +15,8 @@
     var parseTime = d3.timeParse("%Y");
 
     var x = d3.scaleTime().range([0, width]),
-        y = d3.scaleLinear().range([height, 0]);
+        y = d3.scaleLinear().range([height, 0])
+        z = d3.scaleOrdinal(d3.schemeCategory10);
 
     var line = d3.line()
         .curve(d3.curveBasis)
@@ -24,23 +25,71 @@
 
     d3.csv("output.csv", type, function(error, data) {
       if (error) throw error;
-      
-      var nested_emirate = d3.nest()
-          .key(function(d) {
-            return d.emirate;
-          })
-          .key(function(d) {
-            return d.year.getFullYear();
-          })
-          .rollup(function(leaves) {
-            return {
-              "length": leaves.length,
-              "guests": d3.sum(leaves, function(d) {
-                return d.guests;
-              })
-            }
-          })
-          .entries(data);
+
+      var nested = d3.nest()
+        .key(function(d) {
+          return d.emirate;
+        })
+        .key(function(d) {
+          return d.year.getFullYear();
+        })
+        .rollup(function(leaves) {
+          return {
+            "length": leaves.length,
+            "guests": d3.sum(leaves, function(d) {
+              return d.guests;
+            })
+          }
+        })
+        .entries(data);
+
+      x.domain(d3.extent(data, function(d) {
+        return d.year;
+      }));
+
+      y.domain([
+        d3.min(nested, function(c) {
+          return d3.min(c.values,
+            function(d) {
+              return d.value["guests"];
+            });
+        }),
+        d3.max(nested, function(c) {
+          return d3.max(c.values,
+            function(d) {
+              return d.value["guests"];
+            });
+        })
+      ]);
+
+      g.append("g")
+          .attr("class", "axis axis--x")
+          .attr("transform", "translate(0," + height + ")")
+          .call(d3.axisBottom(x))
+
+      g.append("g")
+          .attr("class", "axis axis--y")
+          .call(d3.axisLeft(y))
+        .append("text")
+          .attr("transform", "rotate(-90)")
+          .attr("y", 6)
+          .attr("dy", "0.71em")
+          .attr("fill", "#000")
+          .text("Guests")
+
+      var emirate = g.selectAll(".emirate")
+          .data(nested)
+          .enter().append("g")
+            .attr("class", "emirate");
+
+      emirate.append("path")
+          .attr("class", "line")
+          .attr("d", function(d) {
+            debugger;
+            return d.values;
+            })
+          // .style("stroke", function(d) { return z(d.id); });
+
     });
 
     function type(d) {
