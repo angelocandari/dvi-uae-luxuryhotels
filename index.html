@@ -22,33 +22,25 @@
         .x(function(d) { return x(d.year); })
         .y(function(d) { return y(d.guests); });
 
-    function agg_year(leaves) {
-      var total = d3.sum(leaves, function(d) {
-        return d.guests;
-      });
-
-
-
-      return {
-        "total": total
-      };
-    };
-
     d3.csv("output.csv", type, function(error, data) {
       if (error) throw error;
-
-      var nested = d3.nest()
+      
+      var nested_emirate = d3.nest()
+          .key(function(d) {
+            return d.emirate;
+          })
           .key(function(d) {
             return d.year.getFullYear();
           })
-          .rollup(agg_year)
+          .rollup(function(leaves) {
+            return {
+              "length": leaves.length,
+              "guests": d3.sum(leaves, function(d) {
+                return d.guests;
+              })
+            }
+          })
           .entries(data);
-
-      var filtered = nested.filter(function(d) {
-        return d.key == "1995";
-      });
-
-      debugger;
     });
 
     function type(d) {
