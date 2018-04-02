@@ -2,6 +2,25 @@
 <html>
 <head>
   <meta charset="utf-8">
+  <style> /* set the CSS */
+
+  body { font: 12px Arial;}
+
+  path {
+      stroke: steelblue;
+      stroke-width: 2;
+      fill: none;
+  }
+
+  .axis path,
+  .axis line {
+      fill: none;
+      stroke: grey;
+      stroke-width: 1;
+      shape-rendering: crispEdges;
+  }
+
+  </style>
   <svg width="960" height="500"></svg>
   <script src="http://d3js.org/d3.v4.min.js"></script>
   <script type="text/javascript">
@@ -18,28 +37,26 @@
         y = d3.scaleLinear().range([height, 0])
         z = d3.scaleOrdinal(d3.schemeCategory10);
 
-    var line = d3.line()
-        .curve(d3.curveBasis)
-        .x(function(d) { return x(d.year); })
-        .y(function(d) { return y(d.guests); });
+    var drawline = d3.line()
+        .y(function(d) {
+          return y(d.value);
+        })
+        .x(function(d) {
+          debugger;
+          return x(new Date(d.key));
+        });
 
     d3.csv("output.csv", type, function(error, data) {
       if (error) throw error;
 
       var nested = d3.nest()
         .key(function(d) {
-          return d.emirate;
-        })
-        .key(function(d) {
-          return d.year.getFullYear();
+          return d.year;
         })
         .rollup(function(leaves) {
-          return {
-            "length": leaves.length,
-            "guests": d3.sum(leaves, function(d) {
+          return d3.sum(leaves, function(d) {
               return d.guests;
             })
-          }
         })
         .entries(data);
 
@@ -47,20 +64,9 @@
         return d.year;
       }));
 
-      y.domain([
-        d3.min(nested, function(c) {
-          return d3.min(c.values,
-            function(d) {
-              return d.value["guests"];
-            });
-        }),
-        d3.max(nested, function(c) {
-          return d3.max(c.values,
-            function(d) {
-              return d.value["guests"];
-            });
-        })
-      ]);
+      y.domain(d3.extent(nested, function(d) {
+        return d.value;
+      }));
 
       g.append("g")
           .attr("class", "axis axis--x")
@@ -77,18 +83,12 @@
           .attr("fill", "#000")
           .text("Guests")
 
-      var emirate = g.selectAll(".emirate")
-          .data(nested)
-          .enter().append("g")
-            .attr("class", "emirate");
-
-      emirate.append("path")
+      g.append("path")
           .attr("class", "line")
-          .attr("d", function(d) {
-            debugger;
-            return d.values;
-            })
-          // .style("stroke", function(d) { return z(d.id); });
+          .attr("d", drawline(nested));
+
+      // emirate.append("path")
+
 
     });
 
