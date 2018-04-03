@@ -18,7 +18,12 @@
   }
   </style>
   <svg width="960" height="500"></svg>
-  <button id=btn>Click Me</button>
+  <select id="mySelect" size="4">
+    <option>dubai</option>
+    <option>abu dhabi</option>
+    <option>Ajman</option>
+    <option>sharjah</option>
+  </select>
   <script src="http://d3js.org/d3.v4.min.js"></script>
   <script type="text/javascript">
     var svg = d3.select("svg"),
@@ -67,9 +72,9 @@
         return d.year;
       }));
 
-      y.domain(d3.extent(nested_data, function(d) {
+      y.domain([0, d3.max(nested_data, function(d) {
         return d.value;
-      }));
+      }) * 1.2]);
 
       g.append("g")
           .attr("class", "axis axis--x")
@@ -92,9 +97,9 @@
             drawline(nested_data)
           );
 
-      function updateData() {
+      function updateData(emirate) {
         var filtered = data.filter(function(d) {
-          if((d.emirate == "dubai") &&
+          if((d.emirate == emirate) &&
             (d.class == "3 star"))
           {
             return d;
@@ -103,9 +108,9 @@
 
         var nestfilter = nestdata(filtered);
 
-        y.domain(d3.extent(nestfilter, function(d) {
+        y.domain([0, d3.max(nestfilter, function(d) {
           return d.value;
-        }));
+        }) * 1.5]);
 
         g.select(".axis--y")
           .transition()
@@ -117,9 +122,10 @@
           .duration(500)
           .attr("d", drawline(nestfilter));
       }
-      var button = d3.select("#btn")
-        .on("click", function(d) {
-          updateData();
+      var option = d3.select("#mySelect")
+        .on("click", function() {
+          var selected = d3.select("#mySelect").node().value;
+          updateData(selected);
         })
     });
 
