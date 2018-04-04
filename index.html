@@ -40,6 +40,7 @@
     <option>Russia</option>
     <option>2 Star</option>
   </select>
+
   <script src="http://d3js.org/d3.v4.min.js"></script>
   <script type="text/javascript">
     var svg = d3.select("svg"),
@@ -52,8 +53,7 @@
     var parseTime = d3.timeParse("%Y");
 
     var x = d3.scaleTime().range([0, width]),
-        y = d3.scaleLinear().range([height, 0])
-        z = d3.scaleOrdinal(d3.schemeCategory10);
+        y = d3.scaleLinear().range([height, 0]);
 
     var drawline = d3.line()
         .defined(function(d) {return d.key != null})
@@ -61,11 +61,10 @@
           return x(new Date(d.key));
         })
         .y(function(d) {
-          debugger;
           return y(d.value);
         });
 
-    d3.csv("output_2.csv", type, function(error, data) {
+    d3.csv("output.csv", type, function(error, data) {
       if (error) throw error;
 
       function nestdata(dat) {
@@ -125,13 +124,12 @@
           .attr("cy", function(d) {return y(d.value)} )
           .attr("r", 3);
 
-      function updateData(emirate, star) {
+      function updateData(emirate, star, nationality) {
         var filtered = data.filter(function(d) {
-            if((d.emirate == emirate) &&
-              (d.class == "5 star"))
-            {
-              return d;
-            }
+            if( (d.emirate == emirate) &&
+                (d.class == star) &&
+                (d.nationality == nationality)  )
+            { return d; }
         });
 
         var nestfilter = nestdata(filtered);
@@ -178,13 +176,27 @@
           .attr("cx", function(d) {return x(new Date(d.key)); } )
           .attr("cy", function(d) {return y(d.value); } );
       };
+      var select_em = "Dubai";
+      var select_st = "5 star";
+      var select_nt = "Britan";
 
       var option = d3.select("#myEmirate")
         .on("click", function() {
-          var select_em = d3.select("#myEmirate").node().value;
-          var select_st = d3.select("#myStar").node().value;
-          updateData(select_em, select_st);
-        })
+          select_em = d3.select("#myEmirate").node().value;
+          updateData(select_em, select_st, select_nt);
+        });
+
+      var option = d3.select("#myStar")
+        .on("click", function() {
+          select_st = d3.select("#myStar").node().value;
+          updateData(select_em, select_st, select_nt);
+        });
+
+      var option = d3.select("#myNation")
+        .on("click", function() {
+          select_nt = d3.select("#myNation").node().value;
+          updateData(select_em, select_st, select_nt);
+        });
 
     });
 
