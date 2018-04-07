@@ -16,34 +16,41 @@
       stroke-width: 1;
       shape-rendering: crispEdges;
   }
+  .outline {
+      fill: none;
+      stroke: lightgrey;
+      stroke-width: .5;
+      shape-rendering: crispEdges;
+  }
   </style>
+  <h2>The Reason Why UAE is Building More 5-Star Hotels <h2/>
   <svg width="960" height="500"></svg>
   <select id="myEmirate" size="6">
-    <option>All</option>
-    <option selected>Dubai</option>
+    <option selected>All</option>
+    <option>Dubai</option>
     <option>Abu Dhabi</option>
     <option>Ajman and Sharjah</option>
     <option>Umm Al Quwain</option>
     <option>Ras Al-Khaimah and Fujairah</option>
   </select>
   <select id="myStar" size="5">
-    <option>All</option>
-    <option selected>5 star</option>
+    <option selected>All</option>
+    <option>5 star</option>
     <option>4 star</option>
     <option>3 star</option>
     <option>2 star</option>
   </select>
   <select id="myNation" size="10">
-    <option>All</option>
+    <option selected>All</option>
     <option>GCC</option>
     <option>UAE</option>
-    <option selected>UK</option>
-    <option>Other Europian</option>
-    <option>Other Asian</option>
+    <option>UK</option>
     <option>India</option>
     <option>Russia</option>
     <option>Iran</option>
     <option>Germany</option>
+    <option>Other Europian</option>
+    <option>Other Asian</option>
   </select>
 
   <script src="http://d3js.org/d3.v4.min.js"></script>
@@ -61,7 +68,6 @@
         y = d3.scaleLinear().range([height, 0]);
 
     var drawline = d3.line()
-        .defined(function(d) {return d.key != null})
         .x(function(d) {
           return x(new Date(d.key));
         })
@@ -69,24 +75,53 @@
           return y(d.value);
         });
 
+    function filterMe(name, dat, d) {
+      if (dat == "All") {
+        return d[name] != undefined;
+      } else {
+        return d[name] == dat;
+      }
+    };
+
+    function nestdata(dat) {
+      var nested = d3.nest()
+        .key(function(d) {
+          return d.year.getFullYear();
+        })
+        .sortKeys(d3.ascending)
+        .rollup(function(leaves) {
+          return d3.sum(leaves, function(d) {
+              return d.guests;
+            })
+        })
+        .entries(dat);
+      return nested
+    };
+
+    function drawOutline(dat) {
+      var filter_collect = []
+      var em = ["All", "Dubai", "Abu Dhabi"]
+      var cl = ["All","5 star", "4 star", "3 star"]
+      var na = ["All", "UK", "UAE", "GCC", "Russia", "USA"]
+
+      for (i=0; i< em.length; i++) {
+        for (b=0; b< cl.length; b++) {
+          for (c=0; c< na.length; c++) {
+            var filter_new = dat.filter(function(d) {
+              return (filterMe("emirate", em[i], d) &&
+                      filterMe("class", cl[b], d) &&
+                      filterMe("nationality", na[c], d));
+            })
+            filter_collect.push(nestdata(filter_new))
+          }
+        }
+      }
+
+      return [filter_collect]
+    };
+
     d3.csv("output_1.csv", type, function(error, data) {
       if (error) throw error;
-
-      function nestdata(dat) {
-        var nested = d3.nest()
-          .key(function(d) {
-            return d.year.getFullYear();
-          })
-          .sortKeys(d3.ascending)
-          .rollup(function(leaves) {
-            return d3.sum(leaves, function(d) {
-                return d.guests;
-              })
-          })
-          .entries(dat);
-
-        return nested
-      };
 
       var nested_data = nestdata(data);
 
@@ -113,33 +148,30 @@
           .attr("fill", "#000")
           .text("Guests")
 
+      g.append("g")
+        .data(drawOutline(data))
+        .selectAll("path")
+        .data(function(d) { return d; })
+        .enter()
+        .append("path")
+        .attr("class", "outline")
+        .attr("d", function(d) { return drawline(d) });
+
       g.append("path")
           .attr("class", "line")
-          .attr("d",
-            drawline(nested_data)
-          );
+          .attr("d", drawline(nested_data) );
 
       g.selectAll("circle")
           .data(nested_data)
           .enter()
           .append("circle")
           .attr("class", "circle")
-          .attr("cx", function(d) {
-            return x(new Date(d.key))} )
-          .attr("cy", function(d) {return y(d.value)} )
+          .attr("cx", function(d) { return x(new Date(d.key))} )
+          .attr("cy", function(d) { return y(d.value)} )
           .attr("r", 3);
-
-      function filterMe(name, dat, d) {
-        if (dat == "All") {
-          return d[name] != undefined;
-        } else {
-          return d[name] == dat;
-        }
-      };
 
       function updateData(emirate, star, nationality) {
         var filtered = data.filter(function(d) {
-
           return (filterMe("emirate", emirate, d) &&
                   filterMe("class", star, d) &&
                   filterMe("nationality", nationality, d));
@@ -167,6 +199,14 @@
           .duration(500)
           .attr("d", drawline(nestfilter, function(d) {return d.key}));
 
+        g.selectAll(".outline")
+          .transition()
+          .duration(500)
+          .attr("d", function(d) {
+            return drawline(d, function(c) {
+              return c.key;
+            }) });
+
         var circles = g.selectAll("circle")
           .data(nestfilter, function(d) {return d.key});
 
@@ -189,9 +229,9 @@
           .attr("cx", function(d) {return x(new Date(d.key)); } )
           .attr("cy", function(d) {return y(d.value); } );
       };
-      var select_em = "Dubai";
-      var select_st = "5 star";
-      var select_nt = "UK";
+      var select_em = "All";
+      var select_st = "All";
+      var select_nt = "All";
 
       var option = d3.select("#myEmirate")
         .on("click", function() {
