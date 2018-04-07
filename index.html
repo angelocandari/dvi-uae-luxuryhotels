@@ -20,7 +20,7 @@
   <svg width="960" height="500"></svg>
   <select id="myEmirate" size="6">
     <option>All</option>
-    <option>Dubai</option>
+    <option selected>Dubai</option>
     <option>Abu Dhabi</option>
     <option>Ajman and Sharjah</option>
     <option>Umm Al Quwain</option>
@@ -28,17 +28,22 @@
   </select>
   <select id="myStar" size="5">
     <option>All</option>
-    <option>5 star</option>
+    <option selected>5 star</option>
     <option>4 star</option>
     <option>3 star</option>
     <option>2 star</option>
   </select>
-  <select id="myNation" size="5">
+  <select id="myNation" size="10">
     <option>All</option>
-    <option>Britan</option>
+    <option>GCC</option>
     <option>UAE</option>
+    <option selected>UK</option>
+    <option>Other Europian</option>
+    <option>Other Asian</option>
+    <option>India</option>
     <option>Russia</option>
-    <option>2 Star</option>
+    <option>Iran</option>
+    <option>Germany</option>
   </select>
 
   <script src="http://d3js.org/d3.v4.min.js"></script>
@@ -64,7 +69,7 @@
           return y(d.value);
         });
 
-    d3.csv("output.csv", type, function(error, data) {
+    d3.csv("output_1.csv", type, function(error, data) {
       if (error) throw error;
 
       function nestdata(dat) {
@@ -124,12 +129,20 @@
           .attr("cy", function(d) {return y(d.value)} )
           .attr("r", 3);
 
+      function filterMe(name, dat, d) {
+        if (dat == "All") {
+          return d[name] != undefined;
+        } else {
+          return d[name] == dat;
+        }
+      };
+
       function updateData(emirate, star, nationality) {
         var filtered = data.filter(function(d) {
-            if( (d.emirate == emirate) &&
-                (d.class == star) &&
-                (d.nationality == nationality)  )
-            { return d; }
+
+          return (filterMe("emirate", emirate, d) &&
+                  filterMe("class", star, d) &&
+                  filterMe("nationality", nationality, d));
         });
 
         var nestfilter = nestdata(filtered);
@@ -178,7 +191,7 @@
       };
       var select_em = "Dubai";
       var select_st = "5 star";
-      var select_nt = "Britan";
+      var select_nt = "UK";
 
       var option = d3.select("#myEmirate")
         .on("click", function() {
