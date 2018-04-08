@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <style> /* set the CSS */
+  <style>
   body { font: 12px Arial;}
   path {
       stroke: steelblue;
@@ -16,6 +16,11 @@
       stroke-width: 1;
       shape-rendering: crispEdges;
   }
+
+  .filter select {
+    width: 200px;
+  }
+
   .outline {
       fill: none;
       stroke: lightgrey;
@@ -23,37 +28,41 @@
       shape-rendering: crispEdges;
   }
   </style>
-  <h2>The Reason Why UAE is Building More 5-Star Hotels <h2/>
+  <h2>The Reason Why UAE is Building More 5-Star Hotels </h2>
+
   <svg width="960" height="500"></svg>
-  <select id="myEmirate" size="6">
-    <option selected>All</option>
-    <option>Dubai</option>
-    <option>Abu Dhabi</option>
-    <option>Ajman and Sharjah</option>
-    <option>Umm Al Quwain</option>
-    <option>Ras Al-Khaimah and Fujairah</option>
-  </select>
-  <select id="myStar" size="5">
-    <option selected>All</option>
-    <option>5 star</option>
-    <option>4 star</option>
-    <option>3 star</option>
-    <option>2 star</option>
-  </select>
-  <select id="myNation" size="10">
-    <option selected>All</option>
-    <option>GCC</option>
-    <option>UAE</option>
-    <option>UK</option>
-    <option>India</option>
-    <option>Russia</option>
-    <option>Iran</option>
-    <option>Germany</option>
-    <option>Other Europian</option>
-    <option>Other Asian</option>
-  </select>
+  <div class="filter">
+    <select id="myEmirate" size="6">
+      <option selected>All</option>
+      <option>Dubai</option>
+      <option>Abu Dhabi</option>
+      <option>Ajman and Sharjah</option>
+      <option>Umm Al Quwain</option>
+      <option>Ras Al-Khaimah and Fujairah</option>
+    </select>
+    <select id="myStar" size="5">
+      <option selected="slected">All</option>
+      <option>5 star</option>
+      <option>4 star</option>
+      <option>3 star</option>
+      <option>2 star</option>
+    </select>
+    <select id="myNation" size="10">
+      <option selected="slected">All</option>
+      <option>GCC</option>
+      <option>UAE</option>
+      <option>UK</option>
+      <option>India</option>
+      <option>Russia</option>
+      <option>Iran</option>
+      <option>Germany</option>
+      <option>Other Europian</option>
+      <option>Other Asian</option>
+    </select>
+  </div>
 
   <script src="http://d3js.org/d3.v4.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script type="text/javascript">
     var svg = d3.select("svg"),
       margin = {top: 20, right: 80, bottom: 30, left: 100},
@@ -74,6 +83,10 @@
         .y(function(d) {
           return y(d.value);
         });
+
+    var div = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
 
     function filterMe(name, dat, d) {
       if (dat == "All") {
@@ -107,12 +120,17 @@
       for (i=0; i< em.length; i++) {
         for (b=0; b< cl.length; b++) {
           for (c=0; c< na.length; c++) {
+            var elem = {}
             var filter_new = dat.filter(function(d) {
               return (filterMe("emirate", em[i], d) &&
                       filterMe("class", cl[b], d) &&
                       filterMe("nationality", na[c], d));
             })
-            filter_collect.push(nestdata(filter_new))
+            elem["values"] = nestdata(filter_new)
+            elem["emirate"] = em[i]
+            elem["class"] = cl[b]
+            elem["nationality"] = na[c]
+            filter_collect.push(elem)
           }
         }
       }
@@ -149,13 +167,17 @@
           .text("Guests")
 
       g.append("g")
+        .attr("class", "out")
         .data(drawOutline(data))
         .selectAll("path")
         .data(function(d) { return d; })
         .enter()
         .append("path")
         .attr("class", "outline")
-        .attr("d", function(d) { return drawline(d) });
+        .attr("d", function(d) {
+
+          return drawline(d.values)
+        });
 
       g.append("path")
           .attr("class", "line")
@@ -250,6 +272,16 @@
           select_nt = d3.select("#myNation").node().value;
           updateData(select_em, select_st, select_nt);
         });
+
+      d3.selectAll(".out")
+        .on("mouseover", function(d) {
+          div.transition()
+              .duration(200)
+              .style("opacity", .9);
+          div	.html(d.emirate + "<br/>"  + d.class)
+              .style("left", d3.select(this).attr("cx") + "px")
+              .style("top", d3.select(this).attr("cy") + "px");	
+        })
 
     });
 
