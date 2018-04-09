@@ -3,7 +3,11 @@
 <head>
   <meta charset="utf-8">
   <style>
-  body { font: 12px Arial;}
+
+  body, div {
+    box-sizing: border-box;
+    font: 12px Arial;
+  }
   path {
       stroke: steelblue;
       stroke-width: 2;
@@ -17,49 +21,104 @@
       shape-rendering: crispEdges;
   }
 
-  .filter select {
-    width: 200px;
-  }
-
-  .outline {
+  .link {
       fill: none;
+      opacity: .3;
       stroke: lightgrey;
-      stroke-width: .5;
+      stroke-width: 1.5px;
       shape-rendering: crispEdges;
   }
+
+  .hit {
+      fill: none;
+      opacity: 0;
+      stroke: green;
+      stroke-width: 20px;
+  }
+
+  div.tooltip {
+    position: absolute;
+    text-align: center;
+    width: 100px;
+    height: 40px;
+    padding: 2px;
+    font: 12px sans-serif;
+    color: black;
+    background: lightgrey;
+    border: .5px;
+    pointer-events: none;
+  }
+
+  #filter {
+    display: flex;
+    /* flex-flow: row nowrap; */
+    width: 450px;
+  }
+
+  .btn-group {
+    /* display: flex;
+    flex-wrap: wrap; */
+    width: 150px;
+
+  }
+
+  .btn-group button {
+      background-color: white; /* Green background */
+      border: 1px solid lightgrey; /* Green border */
+      color: black; /* White text */
+      padding: 10px 24px; /* Some padding */
+      cursor: pointer; /* Pointer/hand icon */
+      width: 150px; /* Set a width if needed */
+      /* margin: auto; */
+  }
+
+  .btn-group .selected{
+      color: white;
+      background-color: steelblue;
+  }
+
   </style>
+
+
+
+</head>
+
+<body>
   <h2>The Reason Why UAE is Building More 5-Star Hotels </h2>
 
   <svg width="960" height="500"></svg>
-  <div class="filter">
-    <select id="myEmirate" size="6">
-      <option selected>All</option>
-      <option>Dubai</option>
-      <option>Abu Dhabi</option>
-      <option>Ajman and Sharjah</option>
-      <option>Umm Al Quwain</option>
-      <option>Ras Al-Khaimah and Fujairah</option>
-    </select>
-    <select id="myStar" size="5">
-      <option selected="slected">All</option>
-      <option>5 star</option>
-      <option>4 star</option>
-      <option>3 star</option>
-      <option>2 star</option>
-    </select>
-    <select id="myNation" size="10">
-      <option selected="slected">All</option>
-      <option>GCC</option>
-      <option>UAE</option>
-      <option>UK</option>
-      <option>India</option>
-      <option>Russia</option>
-      <option>Iran</option>
-      <option>Germany</option>
-      <option>Other Europian</option>
-      <option>Other Asian</option>
-    </select>
-  </div>
+
+  <!-- <div id="filter">
+    <div id="myEmirate" class="btn-group">
+      <button value="All" class="selected">All</button>
+      <button>Dubai</button>
+      <button>Abu Dhabi</button>
+      <button>Ajman and Sharjah</button>
+      <button>Umm Al Quwain</button>
+      <button>Ras Al-Khaimah and Fujairah</button>
+    </div>
+
+    <div id="myStar" class="btn-group">
+      <button class="selected">All</button>
+      <button>5 star</button>
+      <button>4 star</button>
+      <button>3 star</button>
+      <button>2 star</button>
+    </div>
+
+    <div id="myNation" class="btn-group">
+      <button class="selected">All</button>
+      <button>GCC</button>
+      <button>UAE</button>
+      <button>UK</button>
+      <button>India</button>
+      <button>Russia</button>
+      <button>Iran</button>
+      <button>Germany</button>
+      <button>Other Europian</button>
+      <button>Other Asian</button>
+    </div>
+  </div> -->
 
   <script src="http://d3js.org/d3.v4.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -114,7 +173,7 @@
     function drawOutline(dat) {
       var filter_collect = []
       var em = ["All", "Dubai", "Abu Dhabi"]
-      var cl = ["All","5 star", "4 star", "3 star"]
+      var cl = ["All","Five star", "Four star", "Three star", "Two star"]
       var na = ["All", "UK", "UAE", "GCC", "Russia", "USA"]
 
       for (i=0; i< em.length; i++) {
@@ -138,7 +197,7 @@
       return [filter_collect]
     };
 
-    d3.csv("output_1.csv", type, function(error, data) {
+    d3.csv("output_2.csv", type, function(error, data) {
       if (error) throw error;
 
       var nested_data = nestdata(data);
@@ -166,16 +225,22 @@
           .attr("fill", "#000")
           .text("Guests")
 
-      g.append("g")
-        .attr("class", "out")
+      var outlines = g.append("g")
         .data(drawOutline(data))
         .selectAll("path")
         .data(function(d) { return d; })
         .enter()
-        .append("path")
-        .attr("class", "outline")
-        .attr("d", function(d) {
+        .append("g")
 
+      outlines.append("path")
+        .attr("class", "link outline")
+        .attr("d", function(d) {
+          return drawline(d.values)
+        });
+
+      outlines.append("path")
+        .attr("class", "hit outline")
+        .attr("d", function(d) {
           return drawline(d.values)
         });
 
@@ -225,8 +290,8 @@
           .transition()
           .duration(500)
           .attr("d", function(d) {
-            return drawline(d, function(c) {
-              return c.key;
+            return drawline(d.values, function(c) {
+            return c.key;
             }) });
 
         var circles = g.selectAll("circle")
@@ -256,34 +321,109 @@
       var select_nt = "All";
 
       var option = d3.select("#myEmirate")
+        .selectAll("button")
         .on("click", function() {
-          select_em = d3.select("#myEmirate").node().value;
+          d3.select(this.parentNode).select(".selected").attr("class", "")
+          d3.select(this).attr("class", "selected")
+          select_em = d3.select(this).text();
           updateData(select_em, select_st, select_nt);
         });
 
       var option = d3.select("#myStar")
+        .selectAll("button")
         .on("click", function() {
-          select_st = d3.select("#myStar").node().value;
+          d3.select(this.parentNode).select(".selected").attr("class", "")
+          d3.select(this).attr("class", "selected")
+          select_st = d3.select(this).text();
           updateData(select_em, select_st, select_nt);
         });
 
       var option = d3.select("#myNation")
+        .selectAll("button")
         .on("click", function() {
-          select_nt = d3.select("#myNation").node().value;
+          d3.select(this.parentNode).select(".selected").attr("class", "")
+          d3.select(this).attr("class", "selected")
+          select_nt = d3.select(this).text();
           updateData(select_em, select_st, select_nt);
         });
 
-      d3.selectAll(".out")
+      d3.selectAll(".hit")
         .on("mouseover", function(d) {
+          d3.select(this.parentNode).select(".link")
+          .style("stroke", "orange")
+          .style("opacity", 1)
+          .style("stroke-width", "2px")
           div.transition()
-              .duration(200)
-              .style("opacity", .9);
-          div	.html(d.emirate + "<br/>"  + d.class)
-              .style("left", d3.select(this).attr("cx") + "px")
-              .style("top", d3.select(this).attr("cy") + "px");	
-        })
+            .duration(200)
+            .style("opacity", .9);
+          div.html(d.emirate + "<br>" + d.class + "<br>" + d.nationality)
+            .style("left", (d3.event.pageX) + "px")
+            .style("top", (d3.event.pageY - 0) + "px");
+          })
+        .on("mouseout", function(d) {
+          d3.select(this.parentNode).select(".link")
+          .style("stroke", "lightgrey")
+          .style("opacity", .3)
+          .style("stroke-width", "1.5px")
+          div.transition()
+            .duration(100)
+            .style("opacity", 0);
+          })
+          .on("click", function(d) {
+            updateData(d.emirate, d.class, d.nationality);
+
+            d3.selectAll(".selected").attr("class", "")
+            d3.selectAll("#myEmirate")
+              .selectAll("#" + d.emirate.replace(/ /g,''))
+              .attr("class", "selected")
+
+            d3.selectAll("#myStar")
+              .selectAll("#" + d.class.replace(/ /g,''))
+              .attr("class", "selected")
+
+            d3.selectAll("#myNation")
+              .selectAll("#" + d.nationality.replace(/ /g,''))
+              .attr("class", "selected")
+          });
 
     });
+
+    var myButtons = [
+      {
+        "name": "myEmirate",
+        "values": ["All", "Dubai", "Abu Dhabi", "Ajman and Sharjah",
+        "Umm Al Quwain", "Ras Al-Khaimah and Fujairah"]
+      },{
+        "name": "myStar",
+        "values": ["All", "Five star", "Four star", "Three star", "Two star"]
+      },{
+        "name": "myNation",
+        "values": ["All", "UAE", "GCC", "UK", "USA", "Russia", "Other Europian",
+        "Other Asian"]
+      }]
+
+    d3.select("body").append("div").attr("id", "filter")
+      .selectAll("div")
+      .data(myButtons)
+      .enter()
+      .append("div")
+      .attr("class", "btn-group")
+      .attr("id", function(d){return d.name})
+      .selectAll("button")
+      .data(function(d) {return d.values;})
+      .enter()
+      .append("button")
+      .attr("id", function(d) {return d.replace(/ /g,'');})
+      .text(function(c) {return c;})
+
+    d3.selectAll(".btn-group").select("button")
+      .attr("class", "selected")
+
+
+
+
+    // debugger;
+
 
     function type(d) {
       d.year = parseTime(d.year);
