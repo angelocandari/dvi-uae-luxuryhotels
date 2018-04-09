@@ -51,25 +51,21 @@
 
   #filter {
     display: flex;
-    /* flex-flow: row nowrap; */
-    width: 450px;
+    margin-left: 10px;
   }
 
   .btn-group {
-    /* display: flex;
-    flex-wrap: wrap; */
     width: 150px;
-
+    margin: 20px 10px;
   }
 
   .btn-group button {
       background-color: white; /* Green background */
       border: 1px solid lightgrey; /* Green border */
       color: black; /* White text */
-      padding: 10px 24px; /* Some padding */
+      padding: 5px 5px; /* Some padding */
       cursor: pointer; /* Pointer/hand icon */
       width: 150px; /* Set a width if needed */
-      /* margin: auto; */
   }
 
   .btn-group .selected{
@@ -85,52 +81,24 @@
 
 <body>
   <h2>The Reason Why UAE is Building More 5-Star Hotels </h2>
-
-  <svg width="960" height="500"></svg>
-
-  <!-- <div id="filter">
-    <div id="myEmirate" class="btn-group">
-      <button value="All" class="selected">All</button>
-      <button>Dubai</button>
-      <button>Abu Dhabi</button>
-      <button>Ajman and Sharjah</button>
-      <button>Umm Al Quwain</button>
-      <button>Ras Al-Khaimah and Fujairah</button>
-    </div>
-
-    <div id="myStar" class="btn-group">
-      <button class="selected">All</button>
-      <button>5 star</button>
-      <button>4 star</button>
-      <button>3 star</button>
-      <button>2 star</button>
-    </div>
-
-    <div id="myNation" class="btn-group">
-      <button class="selected">All</button>
-      <button>GCC</button>
-      <button>UAE</button>
-      <button>UK</button>
-      <button>India</button>
-      <button>Russia</button>
-      <button>Iran</button>
-      <button>Germany</button>
-      <button>Other Europian</button>
-      <button>Other Asian</button>
-    </div>
-  </div> -->
+  <div id="filter"></div>
+  <svg width="960" height="400"></svg>
 
   <script src="http://d3js.org/d3.v4.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script type="text/javascript">
     var svg = d3.select("svg"),
-      margin = {top: 20, right: 80, bottom: 30, left: 100},
+      margin = {top: 20, right: 80, bottom: 30, left: 10},
       width = svg.attr("width") - margin.left - margin.right,
       height = svg.attr("height") - margin.top - margin.bottom,
       g = svg.append("g").attr("transform", "translate(" +
           margin.left + "," + margin.top + ")");
 
     var parseTime = d3.timeParse("%Y");
+
+    var select_em = "All";
+    var select_st = "All";
+    var select_nt = "All";
 
     var x = d3.scaleTime().range([0, width]),
         y = d3.scaleLinear().range([height, 0]);
@@ -217,10 +185,11 @@
 
       g.append("g")
           .attr("class", "axis axis--y")
-          .call(d3.axisLeft(y))
-        .append("text")
-          .attr("transform", "rotate(-90)")
-          .attr("y", 6)
+          .call(d3.axisRight(y))
+          .attr("transform", "translate(" + width + ",0)")
+          .append("text")
+          .attr("y", 10)
+          .attr("x", -40)
           .attr("dy", "0.71em")
           .attr("fill", "#000")
           .text("Guests")
@@ -273,7 +242,7 @@
         g.select(".axis--y")
           .transition()
           .duration(500)
-          .call(d3.axisLeft(y));
+          .call(d3.axisRight(y));
 
         g.select(".line")
           .transition()
@@ -316,9 +285,7 @@
           .attr("cx", function(d) {return x(new Date(d.key)); } )
           .attr("cy", function(d) {return y(d.value); } );
       };
-      var select_em = "All";
-      var select_st = "All";
-      var select_nt = "All";
+
 
       var option = d3.select("#myEmirate")
         .selectAll("button")
@@ -402,7 +369,7 @@
         "Other Asian"]
       }]
 
-    d3.select("body").append("div").attr("id", "filter")
+    d3.select("body #filter")
       .selectAll("div")
       .data(myButtons)
       .enter()
@@ -418,12 +385,6 @@
 
     d3.selectAll(".btn-group").select("button")
       .attr("class", "selected")
-
-
-
-
-    // debugger;
-
 
     function type(d) {
       d.year = parseTime(d.year);
