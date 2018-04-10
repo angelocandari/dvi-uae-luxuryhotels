@@ -78,15 +78,26 @@
       background-color: steelblue;
   }
 
+  footer {
+    font-style: italic;
+    color: grey;
+  }
+
   </style>
 
 </head>
 
 <body>
-  <h2>The Reason Why UAE is Building More 5-Star Hotels </h2>
-  <div id="filter">
-  </div>
+  <h1>UAE Hotel Market</h1>
+  <p>The Reason Why UAE is Building More 5-Star Hotels </p>
+  <div id="filter"></div>
   <svg width="960" height="400"></svg>
+  <footer id="footer">
+    <p>Data Source: UAE Open Data <a href="http://data.bayanat.ae/en_GB/dataset">bayanat.ae</a></p>
+    <p>Design Inspired by Amanda Cox NYT article on
+      <a href="https://archive.nytimes.com/www.nytimes.com/interactive/2009/11/06/business/economy/unemployment-lines.html">
+        The Jobless Rate for People Like You</a></p>
+  </footer>
 
   <script src="http://d3js.org/d3.v4.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -100,7 +111,7 @@
 
     var parseTime = d3.timeParse("%Y");
 
-    var select_em = "All Hotels";
+    var select_em = "All Emirates";
     var select_st = "All Classes";
     var select_nt = "All Nationalities";
 
@@ -120,7 +131,7 @@
         .style("opacity", 0);
 
     function filterMe(name, dat, d) {
-      if (dat == "All Hotels") {
+      if (dat == "All Emirates") {
         return d[name] != undefined;
       } else if (dat == "All Classes") {
         return d[name] != undefined;
@@ -148,7 +159,7 @@
 
     function drawOutline(dat) {
       var filter_collect = []
-      var em = ["All Hotels", "Dubai", "Abu Dhabi"]
+      var em = ["All Emirates", "Dubai", "Abu Dhabi"]
       var cl = ["All Classes", "Five star",
                 "Four star", "Three star", "Two star"]
       var na = ["All Nationalities", "UK", "UAE", "GCC", "Russia", "USA"]
@@ -294,6 +305,8 @@
           .append("circle")
           .attr("cx", function(d) {return x(new Date(d.key)); } )
           .attr("cy", function(d) {return y(d.value); } );
+
+        annotate(emirate, star, nationality);
       };
 
 
@@ -363,13 +376,12 @@
               .selectAll("#" + d.nationality.replace(/ /g,''))
               .attr("class", "selected")
           });
-
     });
 
     var myButtons = [
       {
         "name": "myEmirate",
-        "values": ["All Hotels", "Dubai", "Abu Dhabi", "Ajman and Sharjah",
+        "values": ["All Emirates", "Dubai", "Abu Dhabi", "Ajman and Sharjah",
         "Umm Al Quwain", "Ras Al-Khaimah and Fujairah"]
       },{
         "name": "myStar",
@@ -398,7 +410,42 @@
     d3.selectAll(".btn-group").select("button")
       .attr("class", "selected")
 
-    d3.select("#filter").append("p").text("UAE had ")
+    var script = [
+      "1996: UAE and UK relations Improved. <br> 1997 Dubai World Cup. <br> \
+       1997: UK Visitors in Dubai reached 800k. Most stayed in a Five Star Hotel.",
+      "2000: 5 Star Hotels in Abu Dhabi caters to 1.1mil UAE nationals.",
+      "1996: Russian Visitors starts to travel to Dubai."
+    ]
+
+    var annotation = d3.select("#filter")
+    .append("div")
+
+    annotation.append("h2").text("Highlights")
+    annotation.append("div")
+      .attr("id", "teleprompt")
+      .html("")
+
+    var teleprompt = d3.select("#teleprompt")
+
+    function  annotate(em, cl, na) {
+      if (((em == "Dubai") | (em == "All Emirates")) &
+          ((cl == "Five star") | (cl == "All Classes")) &
+          (na == "UK")) {
+        teleprompt.html(script[0])
+
+      } else if (((em == "Abu Dhabi") | (em == "All Emirates")) &
+          ((cl == "Five star") | (cl == "All Classes")) &
+          ((na == "UAE") | (na == "All Nationalities")))  {
+        teleprompt.html(script[1])
+
+      } else if (((em == "Dubai") | (em == "All Emirates")) &
+          (na == "Russia"))  {
+        teleprompt.html(script[2])
+
+      } else {
+        teleprompt.html("")
+      }
+    };
 
     function type(d) {
       d.year = parseTime(d.year);
