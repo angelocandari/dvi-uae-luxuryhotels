@@ -6,7 +6,7 @@ output: html_notebook
 ```{r}
 library(tidyverse)
 
-data <- read_csv("output_1.csv")
+data <- read_csv("data/output.csv")
 ```
 
 ```{r}
@@ -32,6 +32,44 @@ ggplot(data, aes(year, guests)) +
   geom_bar(stat="identity")
 ```
 
+
+```{r}
+data.sum <- data %>%
+  group_by(year) %>%
+  summarise(total_guests = sum(guests)) %>%
+  arrange(year)
+
+before <- subset(data.sum, year == 1985)$total_guests
+after <- subset(data.sum, year == 2005)$total_guests
+
+change <- ((after-before) / before)
+
+
+before
+after
+change
+```
+
+
+```{r}
+data.sum_5 <- data %>%
+  filter(class == "Five star") %>%
+  group_by(year) %>%
+  summarise(total_guests = sum(guests)) %>%
+  arrange(year)
+
+before_5 <- subset(data.sum_5, year == 1985)$total_guests
+after_5 <- subset(data.sum_5, year == 2005)$total_guests
+
+change_5 <- ((after_5-before_5) / before_5)
+
+
+before_5
+after_5
+change_5
+
+after_5/after
+```
 
 ```{r}
 ggplot(data, aes(year, guests, fill=emirate)) +
@@ -100,3 +138,4 @@ ggplot(subset(data, nationality %in% c("UK", "UAE", "Russia")),
   stat_summary(fun.y = mean, geom = "line") +
   stat_summary(fun.y = mean, geom = "point")
 ```
+
