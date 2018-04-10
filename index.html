@@ -3,95 +3,94 @@
 <head>
   <meta charset="utf-8">
   <style>
+    body, div {
+      box-sizing: border-box;
+      font: 12px Arial;
+    }
+    path {
+        stroke: steelblue;
+        stroke-width: 2;
+        fill: none;
+    }
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: grey;
+        stroke-width: 1;
+        shape-rendering: crispEdges;
+    }
 
-  body, div {
-    box-sizing: border-box;
-    font: 12px Arial;
-  }
-  path {
-      stroke: steelblue;
-      stroke-width: 2;
-      fill: none;
-  }
-  .axis path,
-  .axis line {
-      fill: none;
-      stroke: grey;
-      stroke-width: 1;
-      shape-rendering: crispEdges;
-  }
+    .link {
+        fill: none;
+        opacity: .3;
+        stroke: lightgrey;
+        stroke-width: 1.5px;
+        shape-rendering: crispEdges;
+    }
 
-  .link {
-      fill: none;
-      opacity: .3;
-      stroke: lightgrey;
-      stroke-width: 1.5px;
-      shape-rendering: crispEdges;
-  }
+    .hit {
+        fill: none;
+        opacity: 0;
+        stroke: green;
+        stroke-width: 20px;
+    }
 
-  .hit {
-      fill: none;
-      opacity: 0;
-      stroke: green;
-      stroke-width: 20px;
-  }
-
-  div.tooltip {
-    position: absolute;
-    text-align: center;
-    width: 150px;
-    height: 50px;
-    padding: 4px;
-    font: 12px sans-serif;
-    color: white;
-    background: steelblue;
-    border: .5px;
-    pointer-events: none;
-  }
-
-  #filter {
-    display: flex;
-    margin-left: 10px;
-    width: 960px;
-  }
-
-  .btn-group {
-    width: 150px;
-    margin: 20px 10px;
-  }
-
-  .btn-group button:not(:last-child) {
-    border-bottom: none; /* Prevent double borders */
-  }
-
-  .btn-group button {
-      background-color: white; /* Green background */
-      border: 1px solid lightgrey; /* Green border */
-      color: black; /* White text */
-      padding: 5px 5px; /* Some padding */
-      cursor: pointer; /* Pointer/hand icon */
-      width: 150px; /* Set a width if needed */
-  }
-
-  .btn-group .selected{
+    div.tooltip {
+      position: absolute;
+      text-align: center;
+      width: 150px;
+      height: 50px;
+      padding: 4px;
+      font: 12px sans-serif;
       color: white;
-      background-color: steelblue;
-  }
+      background: steelblue;
+      border: .5px;
+      pointer-events: none;
+    }
 
-  footer {
-    font-style: italic;
-    color: grey;
-  }
+    #filter {
+      display: flex;
+      margin-left: 10px;
+      width: 960px;
+    }
 
+    .btn-group {
+      width: 150px;
+      margin: 20px 10px;
+    }
+
+    .btn-group button:not(:last-child) {
+      border-bottom: none; /* Prevent double borders */
+    }
+
+    .btn-group button {
+        background-color: white; /* Green background */
+        border: 1px solid lightgrey; /* Green border */
+        color: black; /* White text */
+        padding: 5px 5px; /* Some padding */
+        cursor: pointer; /* Pointer/hand icon */
+        width: 150px; /* Set a width if needed */
+    }
+
+    .btn-group .selected{
+        color: white;
+        background-color: steelblue;
+    }
+
+    footer {
+      font-style: italic;
+      color: grey;
+    }
   </style>
-
 </head>
 
 <body>
   <h1>UAE Hotel Market</h1>
   <p>The Reason Why UAE is Building More 5-Star Hotels </p>
   <div id="filter"></div>
+
   <svg width="960" height="400"></svg>
+
   <footer id="footer">
     <p>Data Source: UAE Open Data <a href="http://data.bayanat.ae/en_GB/dataset">bayanat.ae</a></p>
     <p>Design Inspired by Amanda Cox NYT article on
@@ -99,8 +98,7 @@
         The Jobless Rate for People Like You</a></p>
   </footer>
 
-  <script src="http://d3js.org/d3.v4.min.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.min.js" charset="utf-8"></script>
   <script type="text/javascript">
     var svg = d3.select("svg"),
       margin = {top: 20, right: 80, bottom: 30, left: 10},
