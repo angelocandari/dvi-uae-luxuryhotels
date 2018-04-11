@@ -1,0 +1,90 @@
+h1, p {
+  margin: 10px;
+  padding: 0px;
+}
+
+body, div {
+  box-sizing: border-box;
+  font: 12px Arial;
+}
+path {
+    stroke: steelblue;
+    stroke-width: 2;
+    fill: none;
+}
+.axis path,
+.axis line {
+    fill: none;
+    stroke: grey;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+}
+
+.link {
+    fill: none;
+    opacity: .3;
+    stroke: lightgrey;
+    stroke-width: 1.5px;
+    shape-rendering: crispEdges;
+}
+
+.hit {
+    fill: none;
+    opacity: 0;
+    stroke: green;
+    stroke-width: 20px;
+}
+
+div.tooltip {
+  position: absolute;
+  text-align: center;
+  width: 150px;
+  height: 50px;
+  padding: 4px;
+  font: 12px sans-serif;
+  color: white;
+  background: steelblue;
+  border: .5px;
+  pointer-events: none;
+}
+
+#filter {
+  display: flex;
+  margin-left: 10px;
+  width: 960px;
+}
+
+.btn-group {
+  width: 150px;
+  margin: 20px 10px;
+}
+
+.btn-group button:not(:last-child) {
+  border-bottom: none; /* Prevent double borders */
+}
+
+.btn-group button {
+    background-color: white; /* Green background */
+    border: 1px solid lightgrey; /* Green border */
+    color: black; /* White text */
+    padding: 5px 5px; /* Some padding */
+    cursor: pointer; /* Pointer/hand icon */
+    width: 150px; /* Set a width if needed */
+}
+
+.btn-group .selected{
+    color: white;
+    background-color: steelblue;
+}
+
+footer p{
+  margin: 0px;
+  padding: 2px;
+  font-style: italic;
+  color: grey;
+  opacity: .8;
+}
+
+header {
+  width: 700px;
+}

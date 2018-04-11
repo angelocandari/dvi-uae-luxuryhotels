@@ -1,0 +1,515 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+
+    h1, p {
+      margin: 10px;
+      padding: 0px;
+    }
+
+    body, div {
+      box-sizing: border-box;
+      font: 12px Arial;
+    }
+    path {
+        stroke: steelblue;
+        stroke-width: 2;
+        fill: none;
+    }
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: grey;
+        stroke-width: 1;
+        shape-rendering: crispEdges;
+    }
+
+    .link {
+        fill: none;
+        opacity: .3;
+        stroke: lightgrey;
+        stroke-width: 1.5px;
+        shape-rendering: crispEdges;
+    }
+
+    .hit {
+        fill: none;
+        opacity: 0;
+        stroke: green;
+        stroke-width: 20px;
+    }
+
+    div.tooltip {
+      position: absolute;
+      text-align: center;
+      width: 150px;
+      height: 50px;
+      padding: 4px;
+      font: 12px sans-serif;
+      color: white;
+      background: steelblue;
+      border: .5px;
+      pointer-events: none;
+    }
+
+    #filter {
+      display: flex;
+      margin-left: 10px;
+      width: 960px;
+    }
+
+    .btn-group {
+      width: 150px;
+      margin: 20px 10px;
+    }
+
+    .btn-group button:not(:last-child) {
+      border-bottom: none; /* Prevent double borders */
+    }
+
+    .btn-group button {
+        background-color: white; /* Green background */
+        border: 1px solid lightgrey; /* Green border */
+        color: black; /* White text */
+        padding: 5px 5px; /* Some padding */
+        cursor: pointer; /* Pointer/hand icon */
+        width: 150px; /* Set a width if needed */
+    }
+
+    .btn-group .selected{
+        color: white;
+        background-color: steelblue;
+    }
+
+    footer {
+      font-style: italic;
+      color: grey;
+    }
+
+    header {
+      width: 700px;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>How UAE Became a Hotel Luxury Destination</h1>
+    <p>From 1985 to 2005, hotel guests in the UAE steadily grew to 7.2 million. 40% of those had stayed in a five star hotel in the UAE. This chart aims to uncover key events that explains UAE's development as a destination for luxury hotels.</p>
+  </header>
+  <div id="filter"></div>
+
+  <svg width="960" height="400"></svg>
+
+  <footer id="footer">
+    <p>Data Source: UAE Open Data <a href="http://data.bayanat.ae/en_GB/dataset">bayanat.ae</a></p>
+
+    <p>Design Inspired by Amanda Cox NYT article on <a href="https://archive.nytimes.com/www.nytimes.com/interactive/2009/11/06/business/economy/unemployment-lines.html">
+        The Jobless Rate for People Like You</a></p>
+
+    <p>News Source: Timeline of UAE and United Kingdom ties <a href="http://gulfnews.com/news/uae/government/timeline-of-uae-and-united-kingdom-ties-1.1175874">gulfnews.com</a></p>
+
+    <p>News Source: UAE GDP per capita <a href="https://www.google.ae/publicdata/explore?ds=d5bncppjof8f9_&met_y=ny_gdp_pcap_cd&hl=en&dl=en#!ctype=l&strail=false&bcs=d&nselm=h&met_y=ny_gdp_pcap_cd&scale_y=lin&ind_y=false&rdim=region&idim=country:ARE&ifdim=region&hl=en_US&dl=en&ind=false">google.ae/publicdata/</a></p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.min.js" charset="utf-8"></script>
+  <script type="text/javascript">
+    var svg = d3.select("svg"),
+      margin = {top: 20, right: 80, bottom: 30, left: 10},
+      width = svg.attr("width") - margin.left - margin.right,
+      height = svg.attr("height") - margin.top - margin.bottom,
+      g = svg.append("g").attr("transform", "translate(" +
+          margin.left + "," + margin.top + ")");
+
+    var parseTime = d3.timeParse("%Y");
+
+    var select_em = "All Emirates";
+    var select_st = "All Classes";
+    var select_nt = "All Nationalities";
+
+    var x = d3.scaleTime().range([0, width]),
+        y = d3.scaleLinear().range([height, 0]);
+
+    var drawline = d3.line()
+        .x(function(d) {
+          return x(new Date(d.key));
+        })
+        .y(function(d) {
+          return y(d.value);
+        });
+
+    var div = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+
+    function filterMe(name, dat, d) {
+      if (dat == "All Emirates") {
+        return d[name] != undefined;
+      } else if (dat == "All Classes") {
+        return d[name] != undefined;
+      } else if (dat == "All Nationalities") {
+        return d[name] != undefined;
+      } else {
+        return d[name] == dat;
+      }
+    };
+
+    function nestdata(dat) {
+      var nested = d3.nest()
+        .key(function(d) {
+          return d.year.getFullYear();
+        })
+        .sortKeys(d3.ascending)
+        .rollup(function(leaves) {
+          return d3.sum(leaves, function(d) {
+              return d.guests;
+            })
+        })
+        .entries(dat);
+      return nested
+    };
+
+    function drawOutline(dat) {
+      var filter_collect = []
+      var em = ["All Emirates", "Dubai", "Abu Dhabi"]
+      var cl = ["All Classes", "Five star",
+                "Four star", "Three star", "Two star"]
+      var na = ["All Nationalities", "UK", "UAE", "GCC", "Russia", "USA"]
+
+      for (i=0; i< em.length; i++) {
+        for (b=0; b< cl.length; b++) {
+          for (c=0; c< na.length; c++) {
+            var elem = {}
+            var filter_new = dat.filter(function(d) {
+              // debugger;
+              return (filterMe("emirate", em[i], d) &&
+                      filterMe("class", cl[b], d) &&
+                      filterMe("nationality", na[c], d));
+            })
+            elem["values"] = nestdata(filter_new)
+            elem["emirate"] = em[i]
+            elem["class"] = cl[b]
+            elem["nationality"] = na[c]
+            filter_collect.push(elem)
+          }
+        }
+      }
+
+      return [filter_collect]
+    };
+
+    d3.csv("data/output.csv", type, function(error, data) {
+      if (error) throw error;
+
+      var nested_data = nestdata(data);
+
+      x.domain(d3.extent(data, function(d) {
+        return d.year;
+      }));
+
+      y.domain([0, d3.max(nested_data, function(d) {
+        return d.value;
+      }) * 1.2]);
+
+      g.append("g")
+          .attr("class", "axis axis--x")
+          .attr("transform", "translate(0," + height + ")")
+          .call(d3.axisBottom(x))
+
+      g.append("g")
+          .attr("class", "axis axis--y")
+          .call(d3.axisRight(y))
+          .attr("transform", "translate(" + width + ",0)")
+          .append("text")
+          .attr("y", 10)
+          .attr("x", -40)
+          .attr("dy", "0.71em")
+          .attr("fill", "#000")
+          .text("Guests")
+
+      var outlines = g.append("g")
+        .data(drawOutline(data))
+        .selectAll("path")
+        .data(function(d) { return d; })
+        .enter()
+        .append("g")
+
+      outlines.append("path")
+        .attr("class", "link outline")
+        .attr("d", function(d) {
+          return drawline(d.values)
+        });
+
+      outlines.append("path")
+        .attr("class", "hit outline")
+        .attr("d", function(d) {
+          return drawline(d.values)
+        });
+
+      g.append("path")
+          .attr("class", "line")
+          .attr("d", drawline(nested_data) );
+
+      g.selectAll("circle")
+          .data(nested_data)
+          .enter()
+          .append("circle")
+          .attr("class", "circle")
+          .attr("cx", function(d) { return x(new Date(d.key))} )
+          .attr("cy", function(d) { return y(d.value)} )
+          .attr("r", 3);
+
+      function updateData(emirate, star, nationality) {
+        var filtered = data.filter(function(d) {
+          return (filterMe("emirate", emirate, d) &&
+                  filterMe("class", star, d) &&
+                  filterMe("nationality", nationality, d));
+        });
+
+        var nestfilter = nestdata(filtered);
+
+        y.domain([0, d3.max(nestfilter, function(d) {
+          return d.value;
+        }) * 1.5]);
+
+        g.select(".axis--y")
+          .transition()
+          .duration(500)
+          .call(d3.axisRight(y));
+
+        g.select(".line")
+          .transition()
+          .duration(500)
+          .attr("d", drawline(nestfilter, function(d) {return d.key}));
+
+        g.select(".line")
+          .enter()
+          .transition()
+          .duration(500)
+          .attr("d", drawline(nestfilter, function(d) {return d.key}));
+
+        g.selectAll(".outline")
+          .transition()
+          .duration(500)
+          .attr("d", function(d) {
+            return drawline(d.values, function(c) {
+            return c.key;
+            }) });
+
+        var circles = g.selectAll("circle")
+          .data(nestfilter, function(d) {return d.key});
+
+        circles.exit()
+          .transition()
+          .duration(500)
+            .attr("cx", function(d) {
+              return x(new Date(d.key))} )
+            .attr("cy", y(d3.min(nestfilter, function(d) {
+              return d.value;
+            })* 1.5));
+
+        circles.transition()
+          .duration(500)
+            .attr("cx", function(d) {return x(new Date(d.key)); } )
+            .attr("cy", function(d) {return y(d.value); } );
+
+        circles.enter()
+          .append("circle")
+          .attr("cx", function(d) {return x(new Date(d.key)); } )
+          .attr("cy", function(d) {return y(d.value); } );
+
+        annotate(emirate, star, nationality);
+      };
+
+      var story_seq = [
+        ["Dubai", "Five star", "UK"],
+        ["Abu Dhabi", "Five star", "UAE"],
+        ["Dubai", "Five star", "Russia"],
+        ["All Emirates", "All Classes", "All Nationalities"]
+      ]
+      var page = 0;
+      var story_interval = setInterval(function() {
+        updateData(story_seq[page][0], story_seq[page][1], story_seq[page][2]);
+
+        if (page >= 3) {
+          clearInterval(story_interval);
+        }
+
+        d3.selectAll(".selected").attr("class", "")
+        d3.selectAll("#myEmirate")
+          .selectAll("#" + story_seq[page][0].replace(/ /g,''))
+          .attr("class", "selected")
+
+        d3.selectAll("#myStar")
+          .selectAll("#" + story_seq[page][1].replace(/ /g,''))
+          .attr("class", "selected")
+
+        d3.selectAll("#myNation")
+          .selectAll("#" + story_seq[page][2].replace(/ /g,''))
+          .attr("class", "selected")
+
+        page++;
+      }, 3000);
+
+
+      d3.select("#myEmirate")
+        .selectAll("button")
+        .on("click", function() {
+          d3.select(this.parentNode).select(".selected").attr("class", "")
+          d3.select(this).attr("class", "selected")
+          select_em = d3.select(this).text();
+          updateData(select_em, select_st, select_nt);
+        });
+
+      d3.select("#myStar")
+        .selectAll("button")
+        .on("click", function() {
+          d3.select(this.parentNode).select(".selected").attr("class", "")
+          d3.select(this).attr("class", "selected")
+          select_st = d3.select(this).text();
+          updateData(select_em, select_st, select_nt);
+        });
+
+      d3.select("#myNation")
+        .selectAll("button")
+        .on("click", function() {
+
+          d3.select(this.parentNode).select(".selected").attr("class", "")
+          d3.select(this).attr("class", "selected")
+          select_nt = d3.select(this).text();
+          updateData(select_em, select_st, select_nt);
+        });
+
+      d3.selectAll(".hit")
+        .on("mouseover", function(d) {
+          d3.select(this.parentNode).select(".link")
+          .style("stroke", "orange")
+          .style("opacity", 1)
+          .style("stroke-width", "2px")
+          div.transition()
+            .duration(200)
+            .style("opacity", .9);
+          div.html(d.emirate + "<br>" + d.class + "<br>" + d.nationality)
+            .style("left", (d3.event.pageX) + "px")
+            .style("top", (d3.event.pageY - 0) + "px");
+          })
+        .on("mouseout", function(d) {
+          d3.select(this.parentNode).select(".link")
+          .style("stroke", "lightgrey")
+          .style("opacity", .3)
+          .style("stroke-width", "1.5px")
+          div.transition()
+            .duration(100)
+            .style("opacity", 0);
+          })
+          .on("click", function(d) {
+            updateData(d.emirate, d.class, d.nationality);
+
+            d3.selectAll(".selected").attr("class", "")
+            d3.selectAll("#myEmirate")
+              .selectAll("#" + d.emirate.replace(/ /g,''))
+              .attr("class", "selected")
+
+            d3.selectAll("#myStar")
+              .selectAll("#" + d.class.replace(/ /g,''))
+              .attr("class", "selected")
+
+            d3.selectAll("#myNation")
+              .selectAll("#" + d.nationality.replace(/ /g,''))
+              .attr("class", "selected")
+          });
+    });
+
+    var myButtons = [
+      {
+        "name": "myEmirate",
+        "values": ["All Emirates", "Dubai", "Abu Dhabi", "Ajman and Sharjah",
+        "Umm Al Quwain", "Ras Al-Khaimah and Fujairah"]
+      },{
+        "name": "myStar",
+        "values": ["All Classes", "Five star",
+                    "Four star", "Three star", "Two star"]
+      },{
+        "name": "myNation",
+        "values": ["All Nationalities", "UAE", "GCC", "UK", "USA", "Russia",
+                  "Other Europian", "Other Asian"]
+      }]
+
+    d3.select("body #filter")
+      .selectAll("div")
+      .data(myButtons)
+      .enter()
+      .append("div")
+      .attr("class", "btn-group")
+      .attr("id", function(d){return d.name})
+      .selectAll("button")
+      .data(function(d) {return d.values;})
+      .enter()
+      .append("button")
+      .attr("id", function(d) {return d.replace(/ /g,'');})
+      .text(function(c) {return c;})
+
+    d3.selectAll(".btn-group").select("button")
+      .attr("class", "selected")
+
+    var script = [
+    "1984: UAE and UK Trade Relations Improved. <br>\
+     1992: Emirates Airlines teams up with Air London Int.<br>\
+     1993: UK Exports to UAE increase by 40%.<br>\
+     1994: UK affirms support to UAE over disputed islands with Iran.<br>\
+     1996: UAE signs a Defence Cooperation Aggreement with UK.<br>\
+     1997: Dubai World Cup.<br>\
+     1997: UK hotel guests reached 800k. Most stayed at Five Star.<br>",
+    "2000: 5 Star Hotels in Abu Dhabi caters to 1.1mil UAE nationals.<br>\
+     2000: UAE GDP per capita rise to 30k USD - 17% annual increase. ",
+    "1996: Russian Visitors starts to travel to Dubai.<br>\
+     1996: Russian economy started to improve."
+    ]
+
+    var annotation = d3.select("#filter")
+    .append("div")
+
+    annotation.append("h2").text("Highlights")
+    annotation.append("div")
+      .attr("id", "teleprompt")
+      .html("")
+
+    var teleprompt = d3.select("#teleprompt")
+
+    function  annotate(em, cl, na) {
+      if (((em == "Dubai") | (em == "All Emirates")) &
+          ((cl == "Five star") | (cl == "All Classes")) &
+          (na == "UK")) {
+        teleprompt.html(script[0])
+
+      } else if (((em == "Abu Dhabi") | (em == "All Emirates")) &
+          ((cl == "Five star") | (cl == "All Classes")) &
+          ((na == "UAE") | (na == "All Nationalities")))  {
+        teleprompt.html(script[1])
+
+      } else if (((em == "Dubai") | (em == "All Emirates")) &
+          (na == "Russia"))  {
+        teleprompt.html(script[2])
+
+      } else {
+        teleprompt.html("")
+      }
+    };
+
+
+
+    function type(d) {
+      d.year = parseTime(d.year);
+      d.guests = +d.guests;
+      d.nights = +d.nights;
+      return d;
+    }
+
+  </script>
+
+</body>
+
+</html>
