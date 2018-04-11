@@ -3,6 +3,12 @@
 <head>
   <meta charset="utf-8">
   <style>
+
+    h1, p {
+      margin: 10px;
+      padding: 0px;
+    }
+
     body, div {
       box-sizing: border-box;
       font: 12px Arial;
@@ -83,15 +89,15 @@
     }
 
     header {
-      width: 600px;
+      width: 700px;
     }
   </style>
 </head>
 
 <body>
   <header>
-    <h1>How UAE is Becoming a Hotel Luxury Destination</h1>
-    <p>From 1985 to 2005, hotel guests in the UAE steadily grew to 7.2 million guests. 40% of those are guests who had stayed in a five star hotel in the UAE. This chart aims to uncover key events that explains country's path as becoming a destination for luxury hotels.</p>
+    <h1>How UAE Became a Hotel Luxury Destination</h1>
+    <p>From 1985 to 2005, hotel guests in the UAE steadily grew to 7.2 million. 40% of those had stayed in a five star hotel in the UAE. This chart aims to uncover key events that explains UAE's development as a destination for luxury hotels.</p>
   </header>
   <div id="filter"></div>
 
@@ -99,9 +105,13 @@
 
   <footer id="footer">
     <p>Data Source: UAE Open Data <a href="http://data.bayanat.ae/en_GB/dataset">bayanat.ae</a></p>
-    <p>Design Inspired by Amanda Cox NYT article on
-      <a href="https://archive.nytimes.com/www.nytimes.com/interactive/2009/11/06/business/economy/unemployment-lines.html">
+
+    <p>Design Inspired by Amanda Cox NYT article on <a href="https://archive.nytimes.com/www.nytimes.com/interactive/2009/11/06/business/economy/unemployment-lines.html">
         The Jobless Rate for People Like You</a></p>
+
+    <p>News Source: Timeline of UAE and United Kingdom ties <a href="http://gulfnews.com/news/uae/government/timeline-of-uae-and-united-kingdom-ties-1.1175874">gulfnews.com</a></p>
+
+    <p>News Source: UAE GDP per capita <a href="https://www.google.ae/publicdata/explore?ds=d5bncppjof8f9_&met_y=ny_gdp_pcap_cd&hl=en&dl=en#!ctype=l&strail=false&bcs=d&nselm=h&met_y=ny_gdp_pcap_cd&scale_y=lin&ind_y=false&rdim=region&idim=country:ARE&ifdim=region&hl=en_US&dl=en&ind=false">google.ae/publicdata/</a></p>
   </footer>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.min.js" charset="utf-8"></script>
@@ -313,8 +323,38 @@
         annotate(emirate, star, nationality);
       };
 
+      var story_seq = [
+        ["Dubai", "Five star", "UK"],
+        ["Abu Dhabi", "Five star", "UAE"],
+        ["Dubai", "Five star", "Russia"],
+        ["All Emirates", "All Classes", "All Nationalities"]
+      ]
+      var page = 0;
+      var story_interval = setInterval(function() {
+        updateData(story_seq[page][0], story_seq[page][1], story_seq[page][2]);
 
-      var option = d3.select("#myEmirate")
+        if (page >= 3) {
+          clearInterval(story_interval);
+        }
+
+        d3.selectAll(".selected").attr("class", "")
+        d3.selectAll("#myEmirate")
+          .selectAll("#" + story_seq[page][0].replace(/ /g,''))
+          .attr("class", "selected")
+
+        d3.selectAll("#myStar")
+          .selectAll("#" + story_seq[page][1].replace(/ /g,''))
+          .attr("class", "selected")
+
+        d3.selectAll("#myNation")
+          .selectAll("#" + story_seq[page][2].replace(/ /g,''))
+          .attr("class", "selected")
+
+        page++;
+      }, 3000);
+
+
+      d3.select("#myEmirate")
         .selectAll("button")
         .on("click", function() {
           d3.select(this.parentNode).select(".selected").attr("class", "")
@@ -323,7 +363,7 @@
           updateData(select_em, select_st, select_nt);
         });
 
-      var option = d3.select("#myStar")
+      d3.select("#myStar")
         .selectAll("button")
         .on("click", function() {
           d3.select(this.parentNode).select(".selected").attr("class", "")
@@ -332,7 +372,7 @@
           updateData(select_em, select_st, select_nt);
         });
 
-      var option = d3.select("#myNation")
+      d3.select("#myNation")
         .selectAll("button")
         .on("click", function() {
 
@@ -415,10 +455,17 @@
       .attr("class", "selected")
 
     var script = [
-      "1996: UAE and UK relations Improved. <br> 1997 Dubai World Cup. <br> \
-       1997: UK Visitors in Dubai reached 800k. Most stayed in a Five Star Hotel.",
-      "2000: 5 Star Hotels in Abu Dhabi caters to 1.1mil UAE nationals.",
-      "1996: Russian Visitors starts to travel to Dubai."
+    "1984: UAE and UK Trade Relations Improved. <br>\
+     1992: Emirates Airlines teams up with Air London Int.<br>\
+     1993: UK Exports to UAE increase by 40%.<br>\
+     1994: UK affirms support to UAE over disputed islands with Iran.<br>\
+     1996: UAE signs a Defence Cooperation Aggreement with UK.<br>\
+     1997: Dubai World Cup.<br>\
+     1997: UK hotel guests reached 800k. Most stayed at Five Star.<br>",
+    "2000: 5 Star Hotels in Abu Dhabi caters to 1.1mil UAE nationals.<br>\
+     2000: UAE GDP per capita rise to 30k USD - 17% annual increase. ",
+    "1996: Russian Visitors starts to travel to Dubai.<br>\
+     1996: Russian economy started to improve."
     ]
 
     var annotation = d3.select("#filter")
@@ -450,6 +497,8 @@
         teleprompt.html("")
       }
     };
+
+
 
     function type(d) {
       d.year = parseTime(d.year);
