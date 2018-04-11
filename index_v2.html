@@ -184,7 +184,7 @@
       return [filter_collect]
     };
 
-    d3.csv("output.csv", type, function(error, data) {
+    d3.csv("data/output.csv", type, function(error, data) {
       if (error) throw error;
 
       var nested_data = nestdata(data);

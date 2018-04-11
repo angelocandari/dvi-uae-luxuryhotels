@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <script src="http://d3js.org/d3.v4.min.js"></script>
+  <script src="http://d3js.org/d3.v3.min.js"></script>
   <script type="text/javascript">
     function draw(data) {
       "use strict";
@@ -114,7 +114,7 @@
 <body>
   <script type = "text/javascript">
     var format = d3.time.format("%Y");
-    d3.csv("output.csv", function(d) {
+    d3.csv("data/output.csv", function(d) {
       d["year"] = format.parse(d["year"]);
       d["guests"] = +d["guests"];
       return d;
