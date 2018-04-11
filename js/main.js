@@ -9,7 +9,7 @@ var parseTime = d3.timeParse("%Y");
 
 var select_em = "All Emirates"; // Default filter Values.
 var select_st = "All Classes";
-var select_nt = "All Nationalities";
+var select_nt = "All Guest Nationalities";
 
 var x = d3.scaleTime().range([0, width]),
     y = d3.scaleLinear().range([height, 0]);
@@ -31,7 +31,7 @@ function filterMe(name, dat, d) { // When All selections are chosen, this helps
     return d[name] != undefined;
   } else if (dat == "All Classes") {
     return d[name] != undefined;
-  } else if (dat == "All Nationalities") {
+  } else if (dat == "All Guest Nationalities") {
     return d[name] != undefined;
   } else {
     return d[name] == dat;
@@ -58,7 +58,7 @@ function drawOutline(dat) { // Draws my background lines.
   var em = ["All Emirates", "Dubai", "Abu Dhabi"]
   var cl = ["All Classes", "Five star",
             "Four star", "Three star", "Two star"]
-  var na = ["All Nationalities", "UK", "UAE", "GCC", "Russia", "USA"]
+  var na = ["All Guest Nationalities", "UK", "UAE", "GCC", "Russia", "USA"]
 
   for (i=0; i< em.length; i++) {    // Nested Loop that draws variations of the
     for (b=0; b< cl.length; b++) {  // preselected parameters.
@@ -207,7 +207,7 @@ d3.csv("data/output.csv", type, function(error, data) {
     ["Dubai", "Five star", "UK"],
     ["Abu Dhabi", "Five star", "UAE"],
     ["Dubai", "Five star", "Russia"],
-    ["All Emirates", "All Classes", "All Nationalities"]
+    ["All Emirates", "All Classes", "All Guest Nationalities"]
   ]
   var page = 0;
   var story_interval = setInterval(function() { // Animates my Story.
@@ -319,7 +319,7 @@ var myButtons = [ // My Filters.
                 "Four star", "Three star", "Two star"]
   },{
     "name": "myNation",
-    "values": ["All Nationalities", "UAE", "GCC", "UK", "USA", "Russia",
+    "values": ["All Guest Nationalities", "UAE", "GCC", "UK", "USA", "Russia",
               "Other Europian", "Other Asian"]
   }]
 
@@ -385,7 +385,7 @@ function annotate(em, cl, na) { // Adds Annodation depending on selections.
 
   } else if (((em == "Abu Dhabi")) &
       ((cl == "Five star") | (cl == "All Classes")) &
-      ((na == "UAE") | (na == "All Nationalities")))  {
+      ((na == "UAE") | (na == "All Guest Nationalities")))  {
     teleprompt.html(script[1])
 
   } else if (((em == "Dubai") | (em == "All Emirates")) &
