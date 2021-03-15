@@ -51,7 +51,7 @@ div.tooltip {
 #filter {
   display: flex;
   margin-left: 10px;
-  width: 768px;
+  width: 700px;
 }
 
 .btn-group {
@@ -75,6 +75,10 @@ div.tooltip {
 .btn-group .selected{
     color: white;
     background-color: steelblue;
+}
+
+footer {
+  width: 700px;
 }
 
 footer p{
