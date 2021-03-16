@@ -92,3 +92,7 @@ footer p{
 header {
   width: 700px;
 }
+
+#highlight, #filter.div.h2 {
+	font-size: 18px;
+}
