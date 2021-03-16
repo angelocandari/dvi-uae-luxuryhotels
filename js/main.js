@@ -346,8 +346,7 @@ var script = [ // Annotation Script.
  1993: UK Exports to UAE increase by 40%.<br>\
  1994: UK affirms support to UAE over disputed islands with Iran.<br>\
  1996: UAE signs a Defence Cooperation Aggreement with UK.<br>\
- 1997: Dubai World Cup.<br>\
- 1997: UK hotel guests reached 800k. Most stayed at Five Star.<br>",
+ 1997: Dubai World Cup.",
 "2000: 5 Star Hotels in Abu Dhabi caters to 1.1mil UAE nationals.<br>\
  2000: UAE GDP per capita rise to 30k USD, +17% vs previous year. ",
 "1996: Russian economy started to improve.<br>\
