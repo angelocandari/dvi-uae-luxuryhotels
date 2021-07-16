@@ -1,7 +1,7 @@
 # How UAE is Becoming a Hotel Luxury Destination
 
 ## Getting Started
-You can view my project here: https://angelocandari.github.io/dvi-uae-luxuryhotels/
+You can view my project here: https://cmd-master.github.io/dvi-uae-luxuryhotels/
 
 ## Summary
 In 1985, hotel guests in the UAE were only 550k in total. In 2005, that number grew to 7.2 million - a 12 times increase in just 2 decades. And of that 7.2 million, 40% were guests who stayed in a Five star hotel. This chart shows the annual growth of demand of luxury hotels in the UAE for the past 20 years. It outlines key events that has influenced the incredible development in the country's hotel industry. Data is from Bayanat.ae, UAE's Open Data website,  [Hotels Guests and Nights By Class and Nationality](http://data.bayanat.ae/en_GB/dataset?q=hotels&groups=tourism&sort=score+desc%2C+metadata_modified+desc).
